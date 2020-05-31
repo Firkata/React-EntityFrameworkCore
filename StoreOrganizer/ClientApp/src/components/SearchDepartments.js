@@ -1,6 +1,15 @@
 import React, { useState, useCallback, useEffect } from "react";
-import styles from "./Components.module.css";
+import formStyles from "./Components.module.css";
 import "./components.css";
+
+import {
+  Page,
+  Text,
+  View,
+  Document,
+  StyleSheet,
+  PDFDownloadLink,
+} from "@react-pdf/renderer";
 
 const SearchDepartments = () => {
   const [departments, setDepartments] = useState([]);
@@ -46,10 +55,22 @@ const SearchDepartments = () => {
     }
   }, []);
 
+  const styles = StyleSheet.create({
+    page: {
+      flexDirection: "row",
+      backgroundColor: "#E4E4E4",
+    },
+    section: {
+      margin: 10,
+      padding: 10,
+      flexGrow: 1,
+    },
+  });
+
   return (
     <>
       <form onSubmit={handleSubmit}>
-        <div className={`form-group row ${styles.Container}`}>
+        <div className={`form-group row ${formStyles.Container}`}>
           <select className="form-control" data-val="true" name="storeId">
             {stores.map((store) => (
               <option key={store.id} value={store.id}>
@@ -65,16 +86,49 @@ const SearchDepartments = () => {
         <tbody>
           <tr>
             <th>Name</th>
-            <th>Store Number</th>
+            <th>Department Number</th>
           </tr>
-          {departments.map((employee) => (
-            <tr key={employee.id}>
-              <td>{employee.name}</td>
-              <td>{employee.departmentNumber}</td>
+          {departments.map((department) => (
+            <tr key={department.id}>
+              <td>{department.name}</td>
+              <td>{department.departmentNumber}</td>
             </tr>
           ))}
         </tbody>
       </table>
+      <div>.</div>
+      <PDFDownloadLink
+        document={
+          <Document>
+            <Page size="A4" style={styles.page}>
+              <View style={styles.section}>
+                <Text>Name:</Text>
+                {departments.map((department) => (
+                  <Text>{department.name}</Text>
+                ))}
+              </View>
+              <View style={styles.section}>
+                <Text>Number:</Text>
+                {departments.map((department) => (
+                  <Text>{department.departmentNumber}</Text>
+                ))}
+              </View>
+            </Page>
+          </Document>
+        }
+        fileName="departments.pdf"
+        style={{
+          textDecoration: "none",
+          padding: "10px",
+          color: "#4a4a4a",
+          backgroundColor: "#f2f2f2",
+          border: "1px solid #4a4a4a",
+        }}
+      >
+        {({ blob, url, loading, error }) =>
+          loading ? "Loading document..." : "Download Pdf"
+        }
+      </PDFDownloadLink>
     </>
   );
 };
